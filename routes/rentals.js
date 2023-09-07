@@ -7,12 +7,12 @@ const Fawn = require("fawn");
 const express = require("express");
 const router = express.Router();
 
-Fawn.init(mongoose);
+mongoose.connect("mongodb://127.0.0.1/vidly");
+
+Fawn.init("mongodb://127.0.0.1/vidly");
 
 router.get("/", auth, async (req, res) => {
-  const rentals = await Rental.find()
-    .select("-__v")
-    .sort("-dateOut");
+  const rentals = await Rental.find().select("-__v").sort("-dateOut");
   res.send(rentals);
 });
 
@@ -33,13 +33,13 @@ router.post("/", auth, async (req, res) => {
     customer: {
       _id: customer._id,
       name: customer.name,
-      phone: customer.phone
+      phone: customer.phone,
     },
     movie: {
       _id: movie._id,
       title: movie.title,
-      dailyRentalRate: movie.dailyRentalRate
-    }
+      dailyRentalRate: movie.dailyRentalRate,
+    },
   });
 
   try {
@@ -49,7 +49,7 @@ router.post("/", auth, async (req, res) => {
         "movies",
         { _id: movie._id },
         {
-          $inc: { numberInStock: -1 }
+          $inc: { numberInStock: -1 },
         }
       )
       .run();
